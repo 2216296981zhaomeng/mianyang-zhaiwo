@@ -69,6 +69,8 @@ plugins.each do |plugin_dir|
     File.join(EXT_SRC, 'UTSOC.mm'),
     File.join(EXT_SRC, 'UTSCPP.mm')
   ]
+  patch_source = File.join(__dir__, 'patches', "#{plugin}-interface.swift")
+  sources << patch_source if File.exist?(patch_source)
   sources.each do |file|
     ref = group.new_file(file)
     target.add_file_references([ref])
