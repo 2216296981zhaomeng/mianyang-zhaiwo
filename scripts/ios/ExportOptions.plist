@@ -10,6 +10,11 @@
 	<string>Apple Distribution</string>
 	<key>teamID</key>
 	<string>3Q57K52TU5</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.zhaiwo.my</key>
+		<string>pingguopro</string>
+	</dict>
 	<key>destination</key>
 	<string>export</string>
 	<key>uploadSymbols</key>
