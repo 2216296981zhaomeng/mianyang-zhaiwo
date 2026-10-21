@@ -67,20 +67,23 @@ plugins.each do |plugin_dir|
 
   sources = swift_sources + [
     File.join(EXT_SRC, 'UTSOC.mm'),
-    File.join(EXT_SRC, 'DCloudUTSConfig.m'),
     File.join(EXT_SRC, 'UTSCPP.mm')
   ]
   sources.each do |file|
     ref = group.new_file(file)
     target.add_file_references([ref])
   end
-  %w[UTSOC.h DCloudUTSConfig.h UTSCPP.h].each do |header|
+  %w[UTSOC.h UTSCPP.h].each do |header|
     group.new_file(File.join(EXT_SRC, header))
   end
 
-  # DCloudUTSConfig reads config.json from the framework bundle.
-  effective_config = File.join(proj_dir, 'config.json')
-  File.write(effective_config, JSON.pretty_generate(config))
+  # UTSOC.mm's DCloudUTSConfig reads uts-config.json from the framework bundle.
+  uts_config = {}
+  uts_config['hooksClasses'] = [config['hooksClass']] if config['hooksClass']
+  uts_config['providers'] = config['providers'] if config['providers']
+  uts_config['components'] = config['components'] if config['components']
+  effective_config = File.join(proj_dir, 'uts-config.json')
+  File.write(effective_config, JSON.pretty_generate(uts_config))
   cfg_ref = group.new_file(effective_config)
   target.resources_build_phase.add_file_reference(cfg_ref)
 
