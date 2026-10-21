@@ -66,7 +66,7 @@ PB=/usr/libexec/PlistBuddy
 
 step "Configuring Info.plist"
 set_plist() {
-  local key="$1" type="$2" value="$3"
+  local key="$1" type="$2" value="${3:-}"
   if "$PB" -c "Print $key" "$INFO_PLIST" >/dev/null 2>&1; then
     "$PB" -c "Set $key $value" "$INFO_PLIST"
   else
