@@ -103,7 +103,8 @@ plugins.each do |plugin_dir|
 
   [
     File.join(SDK_LIBS, 'DCloudUniappRuntime.xcframework'),
-    File.join(SDK_LIBS, 'DCloudUTSFoundation.xcframework')
+    File.join(SDK_LIBS, 'DCloudUTSFoundation.xcframework'),
+    EXT_API
   ].each { |framework| add_link(project, target, framework) }
 
   system_frameworks = Array(config['frameworks']).map { |f| f.sub(/\.framework\z/, '') }
