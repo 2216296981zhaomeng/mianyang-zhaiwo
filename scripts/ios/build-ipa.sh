@@ -52,6 +52,8 @@ fi
 step "Preparing host project from UniAppXVaporDemo"
 rm -rf "$HOST"
 cp -R "$SDK_ROOT/UniAppXVaporDemo" "$HOST"
+ln -sfn "$SDK_ROOT/SDK" "$BUILD/SDK"
+ln -sfn "$SDK_ROOT/TemporarySampleFramework" "$BUILD/TemporarySampleFramework"
 rm -rf "$HOST/UniAppXVaporDemo/uni-app-x/apps"
 mkdir -p "$HOST/UniAppXVaporDemo/uni-app-x/apps"
 cp -R "$RES_APP_ROOT/$APP_ID" "$HOST/UniAppXVaporDemo/uni-app-x/apps/"
