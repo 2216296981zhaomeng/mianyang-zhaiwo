@@ -22,7 +22,7 @@ public class ShowModalResult: NSObject, ShowModalSuccess {
 
 @objc(UTSSDKModulesDCloudUniModalHideModalResult)
 @objcMembers
-public class HideModalResult: NSObject {
+public class HideModalResult: NSObject, HideModalSuccess {
     public var errMsg: String
 
     public init(_ errMsg: String = "hideModal:ok") {
