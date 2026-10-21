@@ -111,7 +111,7 @@ plugins.each do |plugin_dir|
 
   system_frameworks = Array(config['frameworks']).map { |f| f.sub(/\.framework\z/, '') }
   system_libs = Array(config['libs'])
-  ldflags = ['-ObjC'] + system_frameworks.map { |f| "-framework #{f}" } + system_libs.map { |l| "-l#{l}" }
+  ldflags = ['$(inherited)', '-ObjC'] + system_frameworks.map { |f| "-framework #{f}" } + system_libs.map { |l| "-l#{l}" }
 
   target.build_configurations.each do |build_config|
     s = build_config.build_settings
@@ -130,8 +130,8 @@ plugins.each do |plugin_dir|
     s['SWIFT_INSTALL_OBJC_HEADER'] = 'YES'
     s['SKIP_INSTALL'] = 'NO'
     s['OTHER_LDFLAGS'] = ldflags
-    s['FRAMEWORK_SEARCH_PATHS'] = [SDK_LIBS, framework_dir].select { |p| Dir.exist?(p) }
-    s['LIBRARY_SEARCH_PATHS'] = [lib_dir, SDK_LIBS].select { |p| Dir.exist?(p) }
+    s['FRAMEWORK_SEARCH_PATHS'] = ['$(inherited)'] + [SDK_LIBS, framework_dir].select { |p| Dir.exist?(p) }
+    s['LIBRARY_SEARCH_PATHS'] = ['$(inherited)'] + [lib_dir, SDK_LIBS].select { |p| Dir.exist?(p) }
     s['CODE_SIGNING_ALLOWED'] = 'NO'
     s['CODE_SIGNING_REQUIRED'] = 'NO'
   end
