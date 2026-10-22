@@ -14,6 +14,10 @@ on:
         description: Build UTS plugin xcframeworks (set false only for pipeline smoke tests)
         required: false
         default: "true"
+      build_number:
+        description: CFBundleVersion (increase for every App Store upload)
+        required: false
+        default: "1102"
 
 permissions:
   contents: read
@@ -94,6 +98,7 @@ jobs:
       - name: Build IPA
         env:
           RUN_PLUGINS: ${{ inputs.run_plugins }}
+          VERSION_CODE: ${{ inputs.build_number }}
         run: |
           bash scripts/ios/build-ipa.sh
 
