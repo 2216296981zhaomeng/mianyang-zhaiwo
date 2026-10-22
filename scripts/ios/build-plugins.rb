@@ -12,6 +12,8 @@ PLUGINS_ROOT = ENV.fetch('PLUGINS_ROOT')
 PLUGIN_OUT = ENV.fetch('PLUGIN_OUT')
 PLUGIN_BUILD = ENV.fetch('PLUGIN_BUILD')
 LOGS = ENV.fetch('LOGS', PLUGIN_BUILD)
+VERSION_NAME = ENV.fetch('VERSION_NAME', '1.1.01')
+VERSION_CODE = ENV.fetch('VERSION_CODE', '1101')
 
 FileUtils.mkdir_p(PLUGIN_OUT)
 FileUtils.mkdir_p(PLUGIN_BUILD)
@@ -89,6 +91,10 @@ plugins.each do |plugin_dir|
   cfg_ref = group.new_file(effective_config)
   target.resources_build_phase.add_file_reference(cfg_ref)
 
+  # App Store validation requires version keys in every embedded framework.
+  info_plist = File.join(proj_dir, 'Info.plist')
+  FileUtils.cp(File.join(__dir__, 'patches', 'PluginFramework-Info.plist'), info_plist)
+
   framework_dir = File.join(ios_dir, 'Frameworks')
   if Dir.exist?(framework_dir)
     Dir.glob(File.join(framework_dir, '*')).sort.each do |framework|
@@ -118,7 +124,10 @@ plugins.each do |plugin_dir|
     s['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     s['MACH_O_TYPE'] = 'mh_dylib'
     s['DEFINES_MODULE'] = 'YES'
-    s['GENERATE_INFOPLIST_FILE'] = 'YES'
+    s['GENERATE_INFOPLIST_FILE'] = 'NO'
+    s['INFOPLIST_FILE'] = info_plist
+    s['MARKETING_VERSION'] = VERSION_NAME
+    s['CURRENT_PROJECT_VERSION'] = VERSION_CODE
     s['PRODUCT_BUNDLE_IDENTIFIER'] = "com.zhaiwo.plugin.#{target_name.downcase}"
     s['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks', '@loader_path/Frameworks']
     s['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
