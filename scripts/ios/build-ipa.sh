@@ -131,6 +131,8 @@ if [ "$RUN_PLUGINS" = "true" ]; then
   PLUGIN_OUT="$PLUGIN_OUT" \
   PLUGIN_BUILD="$PLUGIN_BUILD" \
   LOGS="$LOGS" \
+  VERSION_NAME="$VERSION_NAME" \
+  VERSION_CODE="$VERSION_CODE" \
   ruby "$ROOT/scripts/ios/build-plugins.rb" | tee "$LOGS/build-plugins.log"
 
   step "Adding plugin xcframeworks to host project"
