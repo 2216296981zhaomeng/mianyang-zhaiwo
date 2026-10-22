@@ -74,7 +74,7 @@ set_plist() {
   fi
 }
 
-set_plist ":CFBundleDisplayName" string "苹果地产"
+set_plist ":CFBundleDisplayName" string "苹果房地产"
 set_plist ":CFBundleShortVersionString" string "$VERSION_NAME"
 set_plist ":CFBundleVersion" string "$VERSION_CODE"
 set_plist ":LSRequiresIPhoneOS" bool true
