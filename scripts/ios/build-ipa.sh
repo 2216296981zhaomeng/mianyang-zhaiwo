@@ -97,6 +97,13 @@ set_plist ":NSBluetoothAlwaysUsageDescription" string "用于连接智能门锁"
 set_plist ":NSBluetoothPeripheralUsageDescription" string "用于连接智能门锁"
 set_plist ":NSLocalNetworkUsageDescription" string "用于连接局域网设备和调试服务"
 set_plist ":NSFaceIDUsageDescription" string "用于身份核验和密码解锁"
+set_plist ":NSCalendarsUsageDescription" string "用于查看和添加带看、签约与工作日程"
+set_plist ":NSCalendarsWriteOnlyAccessUsageDescription" string "用于添加带看、签约与工作日程"
+set_plist ":NSCalendarsFullAccessUsageDescription" string "用于查看和添加带看、签约与工作日程"
+set_plist ":NSRemindersUsageDescription" string "用于创建和查看业务待办提醒"
+set_plist ":NSRemindersFullAccessUsageDescription" string "用于创建和查看业务待办提醒"
+set_plist ":NSMotionUsageDescription" string "用于计步、方向与设备姿态相关的业务功能"
+set_plist ":NSSpeechRecognitionUsageDescription" string "用于语音输入与语音消息识别"
 
 set_plist ":CFBundleURLTypes" array
 "$PB" -c "Add :CFBundleURLTypes:0 dict" "$INFO_PLIST"
