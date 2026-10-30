@@ -9,7 +9,15 @@ on:
       sdk_url:
         description: DCloud iOS Vapor SDK zip
         required: false
-        default: https://web-ext-storage.dcloud.net.cn/uni-app-x/sdk/iOS-Vapor/UniAppXSDK-iOS-Vapor@5.26.zip
+        default: https://web-ext-storage.dcloud.net.cn/uni-app-x/sdk/iOS-Vapor/UniAppXSDK-iOS-Vapor@5.33.zip
+      runtime_version:
+        description: DCloud SDK version matching the exported resources
+        required: true
+        default: "5.33"
+      version_name:
+        description: App version matching the exported resources
+        required: true
+        default: "1.1.04"
       run_plugins:
         description: Build UTS plugin xcframeworks (set false only for pipeline smoke tests)
         required: false
@@ -17,7 +25,7 @@ on:
       build_number:
         description: CFBundleVersion (increase for every App Store upload)
         required: false
-        default: "1102"
+        default: "1104"
 
 permissions:
   contents: read
@@ -41,16 +49,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/cache/UniAppXSDK-iOS-Vapor.zip
-          key: dcloud-ios-vapor-${{ hashFiles('.github/workflows/ios-appstore.yml') }}-5.26
+          key: dcloud-ios-vapor-${{ hashFiles('.github/workflows/ios-appstore.yml') }}-${{ inputs.runtime_version }}
 
       - name: Download DCloud iOS SDK
         env:
           SDK_URL: ${{ inputs.sdk_url }}
+          SDK_VERSION: ${{ inputs.runtime_version }}
         run: |
+          set -euo pipefail
+          if [ "$SDK_VERSION" != "5.33" ]; then
+            echo "Unsupported SDK version: update the pinned checksum before changing versions" >&2
+            exit 1
+          fi
           mkdir -p build/cache
           if [ ! -s build/cache/UniAppXSDK-iOS-Vapor.zip ]; then
             curl --http1.1 -fL --retry 5 --retry-delay 5 --retry-all-errors -o build/cache/UniAppXSDK-iOS-Vapor.zip "$SDK_URL"
           fi
+          echo "a3661ad84946fde3583f6368650a0e45df184d7352e0b15997815b85d034a9ab  build/cache/UniAppXSDK-iOS-Vapor.zip" | shasum -a 256 -c -
           ls -lh build/cache/UniAppXSDK-iOS-Vapor.zip
 
       - name: Download app resources
@@ -99,6 +114,8 @@ jobs:
         env:
           RUN_PLUGINS: ${{ inputs.run_plugins }}
           VERSION_CODE: ${{ inputs.build_number }}
+          VERSION_NAME: ${{ inputs.version_name }}
+          RUNTIME_VERSION: ${{ inputs.runtime_version }}
         run: |
           bash scripts/ios/build-ipa.sh
 

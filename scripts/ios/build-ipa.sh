@@ -19,6 +19,7 @@ APP_ID="${APP_ID:-__UNI__607FC4F}"
 BUNDLE_ID="${BUNDLE_ID:-com.zhaiwo.my}"
 VERSION_NAME="${VERSION_NAME:-1.1.01}"
 VERSION_CODE="${VERSION_CODE:-1101}"
+RUNTIME_VERSION="${RUNTIME_VERSION:-5.26}"
 TEAM_ID="${TEAM_ID:-3Q57K52TU5}"
 PROFILE_NAME="${PROFILE_NAME:-pingguopro}"
 RUN_PLUGINS="${RUN_PLUGINS:-true}"
@@ -48,6 +49,18 @@ fi
 
 [ -d "$RES_APP_ROOT/$APP_ID/www" ] || { echo "missing $RES_APP_ROOT/$APP_ID/www" >&2; exit 1; }
 [ -d "$RES_APP_ROOT/uni_modules" ] || { echo "missing $RES_APP_ROOT/uni_modules" >&2; exit 1; }
+python3 - "$RES_APP_ROOT/$APP_ID/www/manifest.json" "$APP_ID" "$VERSION_NAME" "$VERSION_CODE" "$RUNTIME_VERSION" <<'PY'
+import json, sys
+path, appid, version, build, runtime = sys.argv[1:]
+with open(path, encoding='utf-8-sig') as f:
+    manifest = json.load(f)
+actual = (manifest.get('id'), manifest.get('version', {}).get('name'),
+          str(manifest.get('version', {}).get('code')), manifest.get('uni-app-x', {}).get('compilerVersion'))
+expected = (appid, version, build, runtime)
+if actual != expected:
+    raise SystemExit(f'Resource manifest mismatch: actual={actual}, expected={expected}')
+print('Resource app ID, app version, build and compiler version verified')
+PY
 
 step "Preparing host project from UniAppXVaporDemo"
 rm -rf "$HOST"
@@ -82,7 +95,7 @@ set_plist ":UIFileSharingEnabled" bool true
 set_plist ":NSAppTransportSecurity:NSAllowsArbitraryLoads" bool true
 set_plist ":uniapp-x:appid" string "$APP_ID"
 set_plist ":uniapp-x:ipatype" integer 2
-set_plist ":uniapp-x:uniRuntimeVersion" string "5.26"
+set_plist ":uniapp-x:uniRuntimeVersion" string "$RUNTIME_VERSION"
 set_plist ":uniapp-x:channel" string "appstore"
 set_plist ":uniapp-x:initPrivacyAuthorization" bool true
 
