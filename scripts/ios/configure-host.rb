@@ -3,7 +3,7 @@
 require 'xcodeproj'
 require 'fileutils'
 
-project_path, plugin_out, plugins_root, info_plist, bundle_id, team_id, profile_name, version_name, version_code, add_plugins = ARGV
+project_path, plugin_out, plugins_root, info_plist, bundle_id, team_id, profile_name, version_name, version_code, add_plugins, entitlements = ARGV
 abort 'usage: configure-host.rb <project> <plugin_out> <plugins_root> <info_plist> <bundle_id> <team_id> <profile> <version_name> <version_code> <add_plugins>' unless project_path
 
 project = Xcodeproj::Project.open(project_path)
@@ -24,6 +24,7 @@ target.build_configurations.each do |config|
   settings['TARGETED_DEVICE_FAMILY'] = '1'
   settings['ENABLE_BITCODE'] = 'NO'
   settings['INFOPLIST_FILE'] = 'UniAppXVaporDemo/Info.plist'
+  settings['CODE_SIGN_ENTITLEMENTS'] = entitlements if entitlements && !entitlements.empty?
   settings['GENERATE_INFOPLIST_FILE'] = 'YES'
 end
 

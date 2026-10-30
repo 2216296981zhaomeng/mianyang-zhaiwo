@@ -137,11 +137,34 @@ for plugin_info in "$RES_APP_ROOT"/uni_modules/*/utssdk/app-ios/Info.plist; do
   [ -f "$plugin_info" ] || continue
   python3 "$ROOT/scripts/ios/merge-plist.py" "$INFO_PLIST" "$plugin_info" "$BUNDLE_ID"
 done
+python3 "$ROOT/scripts/ios/merge-plist.py" "$INFO_PLIST" "$ROOT/scripts/ios/AppInfo.plist" "$BUNDLE_ID"
+python3 - "$INFO_PLIST" "$RES_APP_ROOT/$APP_ID/www/manifest.json" <<'PY'
+import json, plistlib, sys
+info_path, manifest_path = sys.argv[1:]
+with open(manifest_path, encoding='utf-8-sig') as f:
+    manifest = json.load(f)
+wechat = manifest['app-ios']['distribute']['modules']['uni-share']['weixin']
+appid, link = wechat['appid'], wechat['universalLink']
+if not appid.startswith('wx') or not link.startswith('https://'):
+    raise SystemExit('Invalid iOS WeChat configuration')
+with open(info_path, 'rb') as f:
+    info = plistlib.load(f)
+info['WeChat'] = {'appid': appid, 'universalLink': link}
+types = info.setdefault('CFBundleURLTypes', [])
+if not any(appid in t.get('CFBundleURLSchemes', []) for t in types):
+    types.append({'CFBundleTypeRole': 'Editor', 'CFBundleURLSchemes': [appid]})
+schemes = info.setdefault('LSApplicationQueriesSchemes', [])
+for scheme in ('weixin', 'wechat'):
+    if scheme not in schemes:
+        schemes.append(scheme)
+with open(info_path, 'wb') as f:
+    plistlib.dump(info, f)
+PY
 
 step "Configuring host project"
 ruby "$ROOT/scripts/ios/configure-host.rb" \
   "$HOST_PROJECT" "$PLUGIN_OUT" "$RES_APP_ROOT/uni_modules" "$INFO_PLIST" \
-  "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "$RUN_PLUGINS" \
+  "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "$RUN_PLUGINS" "$ROOT/scripts/ios/App.entitlements" \
   | tee "$LOGS/configure-host.log"
 
 if [ "$RUN_PLUGINS" = "true" ]; then
@@ -158,7 +181,7 @@ if [ "$RUN_PLUGINS" = "true" ]; then
   step "Adding plugin xcframeworks to host project"
   ruby "$ROOT/scripts/ios/configure-host.rb" \
     "$HOST_PROJECT" "$PLUGIN_OUT" "$RES_APP_ROOT/uni_modules" "$INFO_PLIST" \
-    "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "true" \
+    "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "true" "$ROOT/scripts/ios/App.entitlements" \
     | tee -a "$LOGS/configure-host.log"
 fi
 

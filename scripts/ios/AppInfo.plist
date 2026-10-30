@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 当前标准 AES 业务字段加密、仅中国大陆分发：无需上传出口合规文稿。
+	     false 表示不使用非豁免加密，并非没有加密；加密用途或销售地区变化时需重新评估。 -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>用于拍摄房源实勘视频和业务图片</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>用于录制房源实勘视频的声音和业务语音</string>
+	<!-- 通讯录导入（uni-phoneContact 模块，uni.chooseContact）：DCloud iOS 模块文档
+	     （native/modules/ios/modules.md#uni-phoneContact）要求主工程声明该权限描述，
+	     缺失时访问通讯录会被系统终止进程。 -->
+	<key>NSContactsUsageDescription</key>
+	<string>用于从手机通讯录选择联系人并导入为客户</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于从系统相册选择房源实勘视频和业务图片</string>
+	<!-- iOS 定位授权：root Info.plist 一定会合并进安装包（nativeResources/ios/Info.plist 同键同值保留作双保险）。 -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>踩盘打卡需要核验当前位置是否在楼盘有效范围内</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>PurposeKey</key>
+		<string>踩盘打卡需要核验当前位置是否在楼盘有效范围内</string>
+	</dict>
+</dict>
+</plist>
