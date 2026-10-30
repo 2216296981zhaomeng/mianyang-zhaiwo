@@ -72,7 +72,17 @@ plugins.each do |plugin_dir|
     File.join(EXT_SRC, 'UTSCPP.mm')
   ]
   patch_source = File.join(__dir__, 'patches', "#{plugin}-interface.swift")
-  sources << patch_source if File.exist?(patch_source)
+  if File.exist?(patch_source)
+    if plugin == 'uni-modal'
+      exported = swift_sources.map { |file| File.read(file) }.join("\n")
+      present = %w[ShowModalResult HideModalResult].map { |name| exported.match?(/\bclass\s+#{Regexp.escape(name)}\b/) }
+      abort 'uni-modal export contains only part of the expected interface; refusing to patch' if present.uniq.length > 1
+      sources << patch_source unless present.all?
+      puts 'using uni-modal result classes from export' if present.all?
+    else
+      sources << patch_source
+    end
+  end
   sources.each do |file|
     ref = group.new_file(file)
     target.add_file_references([ref])
