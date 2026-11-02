@@ -52,10 +52,11 @@ if add_plugins == 'true' && plugin_out && File.directory?(plugin_out)
   frameworks.sort.each do |framework|
     name = File.basename(framework)
     existing = project.files.find { |f| File.basename(f.path.to_s) == name }
-    next if existing && target.frameworks_build_phase.files.any? { |bf| bf.file_ref == existing }
+    next if existing && embed.files.any? { |bf| bf.file_ref == existing }
 
     ref = existing || project.frameworks_group.new_file(framework)
-    target.frameworks_build_phase.add_file_reference(ref)
+    # The plugin links vendored dynamic dependencies; the host only embeds them.
+    target.frameworks_build_phase.add_file_reference(ref) unless File.extname(framework) == '.framework'
     build_file = embed.add_file_reference(ref)
     build_file.settings = { 'ATTRIBUTES' => %w[CodeSignOnCopy RemoveHeadersOnCopy] }
     puts "added plugin framework: #{name}"
