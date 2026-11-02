@@ -137,7 +137,7 @@ jobs:
           test -d "$APP/Frameworks/DCloudDebugServe.framework" || { echo "Missing DCloud debug runtime" >&2; exit 1; }
           if [ -f "$APP/Frameworks/unimoduleZwTencentIm.framework/unimoduleZwTencentIm" ]; then
             test -f "$APP/Frameworks/ImSDK_Plus.framework/ImSDK_Plus" || { echo "Missing Tencent IM runtime" >&2; exit 1; }
-            xcrun lipo -verify_arch arm64 "$APP/Frameworks/ImSDK_Plus.framework/ImSDK_Plus"
+            xcrun lipo "$APP/Frameworks/ImSDK_Plus.framework/ImSDK_Plus" -verify_arch arm64
             codesign --verify --strict "$APP/Frameworks/ImSDK_Plus.framework"
           fi
           security cms -D -i "$APP/embedded.mobileprovision" > "$RUNNER_TEMP/profile-check.plist"
