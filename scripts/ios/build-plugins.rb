@@ -217,7 +217,15 @@ plugins.each do |plugin_dir|
     destination = File.join(dependency_dir, 'ImSDK_Plus.framework')
     FileUtils.rm_rf(destination)
     FileUtils.cp_r(candidates.first, destination)
-    puts "staged Tencent IM runtime: #{destination}"
+    # The CocoaPods vendor binary also contains simulator and 32-bit slices.
+    # Thin the staged copy before Xcode embeds and signs the host framework.
+    im_binary = File.join(destination, 'ImSDK_Plus')
+    thin_binary = im_binary + '.arm64'
+    sh!("xcrun lipo #{im_binary.shellescape} -thin arm64 -output #{thin_binary.shellescape}", log)
+    FileUtils.mv(thin_binary, im_binary, force: true)
+    architectures = sh!("xcrun lipo -archs #{im_binary.shellescape}", log).split
+    abort "unexpected Tencent IM architectures: #{architectures.inspect}" unless architectures == ['arm64']
+    puts "staged arm64-only Tencent IM runtime: #{destination}"
   end
 
   out_framework = File.join(PLUGIN_OUT, "#{target_name}.xcframework")
