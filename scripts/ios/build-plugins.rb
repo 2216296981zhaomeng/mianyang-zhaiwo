@@ -184,6 +184,19 @@ plugins.each do |plugin_dir|
   framework_product = File.join(dd, 'Build', 'Products', 'Release-iphoneos', "#{target_name}.framework")
   abort "missing built framework: #{framework_product}" unless Dir.exist?(framework_product)
 
+  # CocoaPods links this vendored dynamic framework into the plugin, but the
+  # plugin xcframework does not contain its dependencies. The host must embed it.
+  if plugin == 'zw-tencent-im' && pods.any? { |pod| pod['name'] == 'TXIMSDK_Plus_iOS' }
+    candidates = Dir.glob(File.join(proj_dir, 'Pods', 'TXIMSDK_Plus_iOS', '**', 'ImSDK_Plus.framework')).select { |path| File.file?(File.join(path, 'ImSDK_Plus')) }
+    abort "expected exactly one Tencent IM framework, found #{candidates.length}: #{candidates.join(', ')}" unless candidates.length == 1
+    dependency_dir = File.join(PLUGIN_OUT, 'dependencies')
+    FileUtils.mkdir_p(dependency_dir)
+    destination = File.join(dependency_dir, 'ImSDK_Plus.framework')
+    FileUtils.rm_rf(destination)
+    FileUtils.cp_r(candidates.first, destination)
+    puts "staged Tencent IM runtime: #{destination}"
+  end
+
   out_framework = File.join(PLUGIN_OUT, "#{target_name}.xcframework")
   FileUtils.rm_rf(out_framework)
   sh!("xcodebuild -create-xcframework -framework #{framework_product.shellescape} -output #{out_framework.shellescape}", log)
