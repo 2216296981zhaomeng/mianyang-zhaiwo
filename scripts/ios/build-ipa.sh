@@ -213,6 +213,8 @@ xcodebuild -exportArchive \
 
 step "Checking embedded Tencent IM runtime"
 python3 "$ROOT/scripts/ios/verify-im-runtime.py" "$BUILD/export"
+step "Checking embedded canvas runtime"
+python3 "$ROOT/scripts/ios/verify-canvas-runtime.py" "$BUILD/export"
 
 step "Done"
 find "$BUILD/export" -name '*.ipa' -maxdepth 2 -print

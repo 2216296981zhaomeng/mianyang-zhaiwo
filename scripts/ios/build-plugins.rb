@@ -45,6 +45,25 @@ end
 plugins = Dir.glob(File.join(PLUGINS_ROOT, '*')).sort
 abort "no plugins under #{PLUGINS_ROOT}" if plugins.empty?
 
+# The SDK demo's prebuilt ExtAPI does not include the Vapor canvas module.
+# Build its SDK source as a separate framework and embed its dynamic engine.
+canvas_source = File.join(EXT_SRC, 'uni-canvas-dom2-index.swift')
+canvas_engine = File.join(SDK_LIBS, 'DCloudUniCanvas.xcframework')
+canvas_device = File.join(canvas_engine, 'ios-arm64', 'DCloudUniCanvas.framework')
+abort "missing canvas SDK source: #{canvas_source}" unless File.file?(canvas_source)
+abort "missing canvas SDK engine: #{canvas_device}" unless File.file?(File.join(canvas_device, 'DCloudUniCanvas'))
+canvas_plugin = File.join(PLUGIN_BUILD, '_inputs', 'dcloud-uni-canvas-dom2')
+canvas_ios = File.join(canvas_plugin, 'utssdk', 'app-ios')
+FileUtils.mkdir_p(File.join(canvas_ios, 'src'))
+FileUtils.mkdir_p(File.join(canvas_ios, 'Frameworks'))
+FileUtils.cp(canvas_source, File.join(canvas_ios, 'src', 'uni-canvas-dom2-index.swift'))
+FileUtils.cp_r(canvas_engine, File.join(canvas_ios, 'Frameworks'))
+File.write(File.join(canvas_ios, 'config.json'), JSON.generate({ 'components' => [{ 'delegateClass' => 'UniCanvasElementRegister' }] }))
+dependencies = File.join(PLUGIN_OUT, 'dependencies')
+FileUtils.mkdir_p(dependencies)
+FileUtils.cp_r(canvas_device, File.join(dependencies, 'DCloudUniCanvas.framework'))
+plugins << canvas_plugin
+
 built = []
 plugins.each do |plugin_dir|
   ios_dir = File.join(plugin_dir, 'utssdk', 'app-ios')
@@ -67,10 +86,14 @@ plugins.each do |plugin_dir|
   target = project.new_target(:framework, target_name, :ios, '15.0')
   group = project.main_group.new_group('Sources', ios_dir)
 
-  sources = swift_sources + [
-    File.join(EXT_SRC, 'UTSOC.mm'),
-    File.join(EXT_SRC, 'UTSCPP.mm')
-  ]
+  sources = swift_sources + [File.join(EXT_SRC, 'UTSCPP.mm')]
+  if plugin == 'dcloud-uni-canvas-dom2'
+    # UTSOC.mm defines DCloudUTSConfig, which is also present in other SDK
+    # frameworks. A unique bootstrap ensures that canvas is registered once.
+    sources << File.join(__dir__, 'CanvasBootstrap.mm')
+  else
+    sources << File.join(EXT_SRC, 'UTSOC.mm')
+  end
   patch_source = File.join(__dir__, 'patches', "#{plugin}-interface.swift")
   if File.exist?(patch_source)
     if plugin == 'uni-modal'
