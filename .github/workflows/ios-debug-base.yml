@@ -45,6 +45,7 @@ jobs:
           sw_vers
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
+          df -h "$RUNNER_TEMP"
 
       - name: Cache DCloud iOS SDK
         uses: actions/cache@v4
@@ -134,6 +135,11 @@ jobs:
           codesign -dvvv "$APP" 2>&1 | sed -n '1,12p'
           /usr/libexec/PlistBuddy -c 'Print :uniapp-x:ipatype' "$APP/Info.plist" | grep -x 1
           test -d "$APP/Frameworks/DCloudDebugServe.framework" || { echo "Missing DCloud debug runtime" >&2; exit 1; }
+          if [ -f "$APP/Frameworks/unimoduleZwTencentIm.framework/unimoduleZwTencentIm" ]; then
+            test -f "$APP/Frameworks/ImSDK_Plus.framework/ImSDK_Plus" || { echo "Missing Tencent IM runtime" >&2; exit 1; }
+            xcrun lipo -verify_arch arm64 "$APP/Frameworks/ImSDK_Plus.framework/ImSDK_Plus"
+            codesign --verify --strict "$APP/Frameworks/ImSDK_Plus.framework"
+          fi
           security cms -D -i "$APP/embedded.mobileprovision" > "$RUNNER_TEMP/profile-check.plist"
           /usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' "$RUNNER_TEMP/profile-check.plist" | grep -x true
           shasum -a 256 "$IPA"
@@ -153,3 +159,9 @@ jobs:
           path: |
             build/logs/**
           if-no-files-found: ignore
+
+      - name: Report runner disk usage
+        if: always()
+        run: |
+          df -h "$RUNNER_TEMP"
+          du -sh build/cache build/sdk build/resources build/plugins build/plugin-build build/export build/logs 2>/dev/null || true

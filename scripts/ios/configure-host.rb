@@ -48,7 +48,8 @@ if add_plugins == 'true' && plugin_out && File.directory?(plugin_out)
     embed.dst_subfolder_spec = '10'
   end
 
-  Dir.glob(File.join(plugin_out, '*.xcframework')).sort.each do |framework|
+  frameworks = Dir.glob(File.join(plugin_out, '*.xcframework')) + Dir.glob(File.join(plugin_out, 'dependencies', '*.framework'))
+  frameworks.sort.each do |framework|
     name = File.basename(framework)
     existing = project.files.find { |f| File.basename(f.path.to_s) == name }
     next if existing && target.frameworks_build_phase.files.any? { |bf| bf.file_ref == existing }
