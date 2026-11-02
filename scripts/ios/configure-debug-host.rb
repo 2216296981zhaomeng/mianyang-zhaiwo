@@ -36,7 +36,7 @@ target.build_configurations.each do |config|
   settings['TARGETED_DEVICE_FAMILY'] = '1'
   settings['ENABLE_BITCODE'] = 'NO'
   settings['INFOPLIST_FILE'] = 'UniAppXVaporDemo/Info.plist'
-  settings['CODE_SIGN_ENTITLEMENTS'] = entitlements if entitlements && !entitlements.empty?
+  settings['CODE_SIGN_ENTITLEMENTS'] = entitlements && !entitlements.empty? ? entitlements : ''
   settings['GENERATE_INFOPLIST_FILE'] = 'YES'
 end
 

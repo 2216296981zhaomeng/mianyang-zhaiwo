@@ -164,7 +164,7 @@ PY
 step "Configuring host project"
 ruby "$ROOT/scripts/ios/configure-debug-host.rb" \
   "$HOST_PROJECT" "$PLUGIN_OUT" "$RES_APP_ROOT/uni_modules" "$INFO_PLIST" \
-  "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "$RUN_PLUGINS" "$ROOT/scripts/ios/App.entitlements" \
+  "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "$RUN_PLUGINS" "" \
   | tee "$LOGS/configure-host.log"
 
 if [ "$RUN_PLUGINS" = "true" ]; then
@@ -181,7 +181,7 @@ if [ "$RUN_PLUGINS" = "true" ]; then
   step "Adding plugin xcframeworks to host project"
   ruby "$ROOT/scripts/ios/configure-debug-host.rb" \
     "$HOST_PROJECT" "$PLUGIN_OUT" "$RES_APP_ROOT/uni_modules" "$INFO_PLIST" \
-    "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "true" "$ROOT/scripts/ios/App.entitlements" \
+    "$BUNDLE_ID" "$TEAM_ID" "$PROFILE_NAME" "$VERSION_NAME" "$VERSION_CODE" "true" "" \
     | tee -a "$LOGS/configure-host.log"
 fi
 
